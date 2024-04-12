@@ -1,5 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.compose.ExperimentalComposeLibrary
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -31,6 +30,12 @@ kotlin {
     }
 
     sourceSets {
+        all {
+            languageSettings {
+                optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
+            }
+        }
+
         val desktopMain by getting
 
         androidMain.dependencies {
@@ -52,15 +57,17 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material)
             implementation(compose.material)
-            @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
 
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
-            implementation(libs.moko.mvvm.core)
-            implementation(libs.moko.mvvm.compose)
-            implementation(libs.kamel)
+            implementation(libs.coil)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
+
+            implementation(libs.androidx.lifecycle.viewmodel.compose)
+            implementation(libs.androidx.navigation.compose)
         }
     }
 }

@@ -7,17 +7,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import dev.icerock.moko.mvvm.compose.getViewModel
-import dev.icerock.moko.mvvm.compose.viewModelFactory
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
-import org.jetbrains.compose.resources.ExperimentalResourceApi
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import coil3.compose.AsyncImage
 
 @Composable
 fun BirdAppTheme(
@@ -35,17 +40,23 @@ fun BirdAppTheme(
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun App() {
     BirdAppTheme {
-        val birdsViewModel = getViewModel(Unit, viewModelFactory { BirdsViewModel() })
-        val uiState by birdsViewModel.uiState.collectAsState()
-        LaunchedEffect(birdsViewModel) {
-            birdsViewModel.updateImages()
-        }
+        val navController = rememberNavController()
+        NavHost(navController, startDestination = "home") {
+            composable(route = "home") {
+                val birdsViewModel = viewModel(BirdsViewModel::class, factory = viewModelFactory {
+                    initializer { BirdsViewModel() }
+                })
 
-        BirdsPage(uiState, onSelectCategory = { birdsViewModel.selectCategory(it) })
+                val uiState by birdsViewModel.uiState.collectAsState()
+                LaunchedEffect(birdsViewModel) {
+                    birdsViewModel.updateImages()
+                }
+                BirdsPage(uiState, onSelectCategory = { birdsViewModel.selectCategory(it) })
+            }
+        }
     }
 }
 
@@ -87,10 +98,10 @@ fun BirdsPage(uiState: BirdsUiState, onSelectCategory: (String) -> Unit) {
 
 @Composable
 fun BirdImageCell(image: BirdImage) {
-    KamelImage(
-        resource = asyncPainterResource("https://sebastianaigner.github.io/demo-image-api/${image.path}"),
+    AsyncImage(
+        "https://sebastianaigner.github.io/demo-image-api/${image.path}",
         contentDescription = "${image.category} by ${image.author}",
         contentScale = ContentScale.Crop,
-        modifier = Modifier.fillMaxWidth().aspectRatio(1.0f),
+        modifier = Modifier.aspectRatio(1.0f).fillMaxWidth()
     )
 }

@@ -1,4 +1,5 @@
-import dev.icerock.moko.mvvm.viewmodel.ViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -21,7 +22,7 @@ class BirdsViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(BirdsUiState(emptyList()))
     val uiState = _uiState.asStateFlow()
 
-    private val httpClient = HttpClient() {
+    private val httpClient = HttpClient {
         install(ContentNegotiation) {
             json()
         }
